@@ -77,6 +77,7 @@ public class TrainClient {
 
     public String[] getCities(String sCityName) throws IOException {
         HttpURLConnection conn1 = request(URL_FIND_STATION_BASE, "", true);
+        System.out.println(getResponse(conn1));
         String sParams = formParameters(FORM_FIND_FROM, sCityName,
                 FORM_FIND_ACTION, "Знайти станцію",
                 "PC_7_91HG12828OVIB02FV7TUIS20G0000000_rezervation.EditFormTAG1", "",
@@ -85,12 +86,13 @@ public class TrainClient {
                 "PC_7_91HG12828OVIB02FV7TUIS20G0000000_rezervation.EditFormTAG6", "");
         HttpURLConnection conn = request(URL_FIND_STATION, sParams, true);
         String sResponse = getResponse(conn);
+        System.out.println(sResponse);
         return null;
     }
 
     public HttpURLConnection request(String sUrl, String sParams, boolean bFollowRedirect) throws MalformedURLException, IOException {
         HttpURLConnection conn = (HttpURLConnection) new URL(sUrl).openConnection();
-        if (sParams != null) {
+        if (sParams != null && !sParams.isEmpty()) {
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Length", Integer.toString(sParams.getBytes().length));
         } else {
@@ -114,10 +116,12 @@ public class TrainClient {
         conn.setUseCaches(false);
         conn.setDoOutput(true);
 
-        DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
-        dos.writeBytes(sParams);
-        dos.flush();
-        dos.close();
+        if (sParams != null && !sParams.isEmpty()) {
+            DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
+            dos.writeBytes(sParams);
+            dos.flush();
+            dos.close();
+        }
 
         String sHeaderName;
         String sCookie = null;
@@ -127,6 +131,9 @@ public class TrainClient {
                 sCookie = conn.getHeaderField(i);
                 String[] split = sCookie.split("=");
                 String sCookieName = split[0], sCookieValue = split[1];
+                if (sCookieName.equals("WASReqURL"))
+                    sCookieValue = sCookieValue.substring(7);
+                cookies.put(sCookieName, sCookieValue);
             } else if (sHeaderName.equals("Location")) {
                 sLocation = conn.getHeaderField(i);
             }

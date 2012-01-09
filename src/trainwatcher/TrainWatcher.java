@@ -48,15 +48,8 @@ public class TrainWatcher {
      */
     public static void main(String[] args) {
         try {
-            HashMap<String, String> sCookies = new HashMap<String, String>();
-            String sLocation = request("http://localhost/test/index.php", sCookies);
-            if (sLocation != null) {
-                sLocation = request(sLocation, sCookies);
-            }
-            
-            for (String sKey : sCookies.keySet()) {
-                System.out.println(String.format("%s: %s", sKey, sCookies.get(sKey)));
-            }
+            TrainClient tc = new TrainClient("setekh", "asdf");
+            String[] cities = tc.getCities("Львів");
         } catch (IOException ex) {
             Logger.getLogger(TrainWatcher.class.getName()).log(Level.SEVERE, null, ex);
         }
